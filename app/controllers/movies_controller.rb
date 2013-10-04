@@ -10,14 +10,16 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.get_all_ratings()
     @all_checked_boxes = params[:ratings]
     sortOption = params[:sortOption]
+    @here = 'there'
+
+    if session[:sortOption]
+      if !sortOption
+        sortOption = session[:sortOption]
+      end
+    end
 
     if !@all_checked_boxes
       @all_checked_boxes = session[:ratings]
-      sortOption = session[:sortOption]
-    end
-
-    if !sortOption
-      sortOption = session[:sortOption]
     end
 
     if(@all_checked_boxes)
