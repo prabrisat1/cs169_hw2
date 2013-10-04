@@ -7,23 +7,58 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.get_all_ratings()
+    @all_checked_boxes = params[:ratings]
+    sortOption = params[:sortOption]
 
-    if params[:sortOption]
-      if params[:sortOption] == 'title'
-        allMovies = Movie.all
+    if !@all_checked_boxes
+      @all_checked_boxes = session[:ratings]
+      sortOption = session[:sortOption]
+    end
+
+    if !sortOption
+      sortOption = session[:sortOption]
+    end
+
+    if(@all_checked_boxes)
+      session[:ratings] = @all_checked_boxes
+      keys = @all_checked_boxes.keys
+
+      @all_ratings.each_with_index{ |item, index| 
+        if !@all_checked_boxes.include?(item[0])
+          value = item[1] =false
+        end
+      }
+    end
+
+    if keys
+      if keys.size != 0
+        allMovies = Movie.find_all_by_rating(keys)
+      else
+        allMovies = Movie.all 
+      end
+    else 
+      allMovies = Movie.all
+    end
+
+    if sortOption
+      if sortOption == 'title'
         @movies = allMovies.sort!{|a,b|
           a.title.downcase <=> b.title.downcase
         }
         @sortOption = 'title'
-      elsif params[:sortOption] == 'date'
-        allMovies = Movie.all
+        session[:sortOption] = 'title'
+      elsif sortOption == 'date'
         @movies = allMovies.sort!{|a,b|
           a.release_date <=> b.release_date
         }
         @sortOption = 'date'
+        session[:sortOption] = 'date'
+      else
+        @movies = allMovies
       end
     else
-      @movies = Movie.all
+      @movies = allMovies
     end
 
   end
